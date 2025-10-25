@@ -56,9 +56,13 @@ chmod +x build_svm.sh
 
 ```vyper
 # test.vy
+event LogMessage:
+    message: String[32]
+
 @external
-def add(a: uint256, b: uint256) -> uint256:
-    return a + b
+def entrypoint() -> uint256:
+    log LogMessage(message="Hello from Vyper on SVM!")
+    return 0
 ```
 
 ## Current Status
