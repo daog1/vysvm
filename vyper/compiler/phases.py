@@ -8,7 +8,12 @@ from vyper import ast as vy_ast
 from vyper.ast import natspec
 from vyper.codegen import module
 from vyper.codegen.ir_node import IRnode
-from vyper.compiler.input_bundle import FileInput, FilesystemInputBundle, InputBundle, JSONInput
+from vyper.compiler.input_bundle import (
+    FileInput,
+    FilesystemInputBundle,
+    InputBundle,
+    JSONInput,
+)
 from vyper.compiler.settings import (
     OptimizationLevel,
     Settings,
@@ -17,7 +22,11 @@ from vyper.compiler.settings import (
     should_run_legacy_optimizer,
 )
 from vyper.ir import compile_ir, optimizer
-from vyper.semantics import analyze_module, set_data_positions, validate_compilation_target
+from vyper.semantics import (
+    analyze_module,
+    set_data_positions,
+    validate_compilation_target,
+)
 from vyper.semantics.analysis.data_positions import generate_layout_export
 from vyper.semantics.analysis.imports import resolve_imports
 from vyper.semantics.types.function import ContractFunctionT
@@ -266,13 +275,27 @@ class CompilerData:
 
         constants = {
             "runtime_codesize": len(self.bytecode_runtime),
-            "immutables_len": self.compilation_target._metadata["type"].immutable_section_bytes,
+            "immutables_len": self.compilation_target._metadata[
+                "type"
+            ].immutable_section_bytes,
         }
 
         venom_ctx = generate_venom(
-            self.ir_nodes, self.settings, constants=constants, data_sections=data_sections
+            self.ir_nodes,
+            self.settings,
+            constants=constants,
+            data_sections=data_sections,
         )
         return venom_ctx
+
+    @property
+    def llvm_ir(self) -> str:
+        if self.settings.experimental_codegen:
+            from vyper.venom import generate_llvm_ir_experimental
+
+            return generate_llvm_ir_experimental(self.venom_runtime)
+        else:
+            raise ValueError("LLVM IR requires experimental codegen")
 
     @cached_property
     def assembly(self) -> list:
@@ -298,7 +321,9 @@ class CompilerData:
         runtime_asm = self.assembly_runtime
         runtime_data_segment_lengths = compile_ir.get_data_segment_lengths(runtime_asm)
 
-        immutables_len = self.compilation_target._metadata["type"].immutable_section_bytes
+        immutables_len = self.compilation_target._metadata[
+            "type"
+        ].immutable_section_bytes
         runtime_codesize = len(self.bytecode_runtime)
 
         metadata = bytes.fromhex(self.integrity_sum)

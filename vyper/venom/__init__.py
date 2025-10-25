@@ -38,6 +38,7 @@ from vyper.venom.passes import (
 )
 from vyper.venom.passes.dead_store_elimination import DeadStoreElimination
 from vyper.venom.venom_to_assembly import VenomCompiler
+from vyper.venom.venom_to_llvm import VenomToLLVM
 
 DEFAULT_OPT_LEVEL = OptimizationLevel.default()
 
@@ -47,6 +48,11 @@ def generate_assembly_experimental(
 ) -> list[AssemblyInstruction]:
     compiler = VenomCompiler(venom_ctx)
     return compiler.generate_evm_assembly(optimize == OptimizationLevel.NONE)
+
+
+def generate_llvm_ir_experimental(venom_ctx: IRContext) -> str:
+    translator = VenomToLLVM(venom_ctx)
+    return translator.generate_llvm_ir()
 
 
 def _run_passes(fn: IRFunction, optimize: OptimizationLevel, ac: IRAnalysesCache) -> None:

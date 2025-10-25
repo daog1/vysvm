@@ -49,6 +49,7 @@ ir_runtime         - Intermediate representation of runtime bytecode in list for
 bb                 - Basic blocks of Venom IR for deployable bytecode
 bb_runtime         - Basic blocks of Venom IR for runtime bytecode
 asm                - Output the EVM assembly of the deployable bytecode
+llvm               - LLVM IR for Solana SVM
 integrity          - Output the integrity hash of the source code
 archive            - Output the build as an archive file
 solc_json          - Output the build in solc json format
@@ -119,7 +120,9 @@ def _parse_args(argv):
         help="Show gas estimates in abi and ir output mode.",
         action="store_true",
     )
-    parser.add_argument("-f", help=format_options_help, default="bytecode", dest="format")
+    parser.add_argument(
+        "-f", help=format_options_help, default="bytecode", dest="format"
+    )
     parser.add_argument(
         "--storage-layout-file",
         help="Override storage slots provided by compiler",
@@ -146,7 +149,9 @@ def _parse_args(argv):
     )
     parser.add_argument("--debug", help="Compile in debug mode", action="store_true")
     parser.add_argument(
-        "--no-bytecode-metadata", help="Do not add metadata to bytecode", action="store_true"
+        "--no-bytecode-metadata",
+        help="Do not add metadata to bytecode",
+        action="store_true",
     )
     parser.add_argument(
         "--traceback-limit",
@@ -167,7 +172,9 @@ def _parse_args(argv):
         action="store_true",
     )
     parser.add_argument(
-        "--hex-ir", help="Represent integers as hex values in the IR", action="store_true"
+        "--hex-ir",
+        help="Represent integers as hex values in the IR",
+        action="store_true",
     )
     parser.add_argument(
         "--path",
@@ -188,10 +195,15 @@ def _parse_args(argv):
         action="store_true",
         dest="experimental_codegen",
     )
-    parser.add_argument("--enable-decimals", help="Enable decimals", action="store_true")
+    parser.add_argument(
+        "--enable-decimals", help="Enable decimals", action="store_true"
+    )
 
     parser.add_argument(
-        "-W", help="Control warnings", dest="warnings_control", choices=["error", "none"]
+        "-W",
+        help="Control warnings",
+        dest="warnings_control",
+        choices=["error", "none"],
     )
 
     args = parser.parse_args(argv)
@@ -220,7 +232,9 @@ def _parse_args(argv):
         output_formats = ("archive_b64",)
 
     if args.no_optimize and args.optimize:
-        raise ValueError("Cannot use `--no-optimize` and `--optimize` at the same time!")
+        raise ValueError(
+            "Cannot use `--no-optimize` and `--optimize` at the same time!"
+        )
 
     settings = Settings()
 
@@ -332,14 +346,18 @@ def compile_files(
     show_version = False
     if "combined_json" in output_formats:
         if len(output_formats) > 1:
-            raise ValueError("If using combined_json it must be the only output format requested")
+            raise ValueError(
+                "If using combined_json it must be the only output format requested"
+            )
         output_formats = combined_json_outputs
         show_version = True
 
     # formats which can only be requested as a single output format
     for c in ("solc_json", "archive"):
         if c in output_formats and len(output_formats) > 1:
-            raise ValueError(f"If using {c} it must be the only output format requested")
+            raise ValueError(
+                f"If using {c} it must be the only output format requested"
+            )
 
     translate_map = {
         "abi_python": "abi",
@@ -371,7 +389,9 @@ def compile_files(
             # we allow this instead of requiring a different mode (like
             # `--zip`) so that verifier pipelines do not need a different
             # workflow for archive files and single-file contracts.
-            output = compile_from_zip(file_name, final_formats, settings, no_bytecode_metadata)
+            output = compile_from_zip(
+                file_name, final_formats, settings, no_bytecode_metadata
+            )
             ret[file_path] = output
             continue
         except NotZipInput:

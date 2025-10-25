@@ -48,6 +48,7 @@ OUTPUT_FORMATS = {
     "opcodes_runtime": output.build_opcodes_runtime_output,
     "symbol_map": output.build_symbol_map,
     "symbol_map_runtime": output.build_symbol_map_runtime,
+    "llvm": lambda compiler_data: compiler_data.llvm_ir,
 }
 
 INTERFACE_OUTPUT_FORMATS = [
