@@ -2165,6 +2165,46 @@ class Breakpoint(BuiltinFunctionT):
         return IRnode.from_list("breakpoint", annotation="breakpoint()")
 
 
+class Dbg(BuiltinFunctionT):
+    _id = "dbg"
+    _inputs = [("message", StringT.any())]
+
+    _warned = False
+
+    def fetch_call_return(self, node):
+        if not self._warned:
+            vyper_warn("`dbg` should only be used for debugging!", node)
+            self._warned = True
+        return None
+
+    def infer_arg_types(self, node, expected_return_typ=None):
+        self._validate_arg_types(node)
+        message_type = get_possible_types_from_node(node.args[0]).pop()
+        return [message_type]
+
+    @process_inputs
+    def build_IR(self, expr, args, kwargs, context):
+        message = args[0]
+
+        input_buf = ensure_in_memory(message, context)
+
+        log_annotation = "dbg"
+        literal_arg = expr.args[0]
+        if isinstance(literal_arg, vy_ast.Str):
+            log_annotation = literal_arg.value
+
+        log_ir = IRnode.from_list(
+            ["log0", ["add", "_sub", 32], ["mload", "_sub"]],
+            annotation=log_annotation,
+            ast_source=expr,
+        )
+
+        return IRnode.from_list(
+            ["with", "_sub", input_buf, ensure_eval_once("dbg", log_ir)],
+            ast_source=expr,
+        )
+
+
 class Print(BuiltinFunctionT):
     _id = "print"
     _inputs: list = []
@@ -2576,6 +2616,7 @@ DISPATCH_TABLE = {
 
 STMT_DISPATCH_TABLE = {
     "send": Send(),
+    "dbg": Dbg(),
     "print": Print(),
     "breakpoint": Breakpoint(),
     "selfdestruct": SelfDestruct(),

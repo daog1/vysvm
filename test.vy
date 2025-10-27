@@ -6,4 +6,7 @@ event LogMessage:
 @external
 def entrypoint() -> uint256:
     log LogMessage(message="Hello from Vyper on SVM!")
+    dbg("test")
+    e:String[100] = concat("hello","world")
+    dbg(e)
     return 0

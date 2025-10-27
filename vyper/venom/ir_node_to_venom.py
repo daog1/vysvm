@@ -683,7 +683,7 @@ def _convert_ir_bb(fn, ir, symbols):
         args = reversed(_convert_ir_bb_list(fn, ir.args, symbols))
         topic_count = int(ir.value[3:])
         assert topic_count >= 0 and topic_count <= 4, "invalid topic count"
-        fn.get_basic_block().append_instruction("log", topic_count, *args)
+        fn.get_basic_block().append_instruction("log", topic_count, *args, annotation=ir.annotation)
     elif isinstance(ir.value, str) and ir.value.upper() in get_opcodes():
         _convert_ir_opcode(fn, ir, symbols)
     elif isinstance(ir.value, str):

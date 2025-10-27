@@ -5,10 +5,10 @@
 set -e
 
 # Install dependencies if needed
-pip install llvmlite
+#pip install llvmlite
 
 # Compile Vyper to LLVM IR
-PYTHONPATH=. python -m vyper.cli.vyper_compile test.vy --experimental-codegen -f llvm > program.ll
+uv run python -m vyper.cli.vyper_compile test.vy --experimental-codegen -f llvm > program.ll
 
 # Assemble to bitcode
 llvm-as program.ll -o program.bc
